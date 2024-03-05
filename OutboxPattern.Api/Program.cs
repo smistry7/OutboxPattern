@@ -2,6 +2,9 @@ using Amazon.DynamoDBv2;
 using Amazon.Runtime.SharedInterfaces;
 using Amazon.SQS;
 using LocalStack.Client.Extensions;
+using OutboxPattern.HmrcClient;
+using OutboxPattern.Repository;
+using OutboxPattern.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,9 +14,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddLocalStack(builder.Configuration);
-builder.Services.AddAwsService<IAmazonSQS>();
-builder.Services.AddAwsService<IAmazonDynamoDB>();
+builder.Services
+    .AddSingleton<OutboxRepository>()
+    .AddTransient<IHmrcClient, HmrcClient>()
+    .AddTransient<EventService>();
 
 
 var app = builder.Build();
